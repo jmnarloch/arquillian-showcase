@@ -17,7 +17,6 @@
 package com.acme.spring.jdbc.repository.impl;
 
 import com.acme.spring.jdbc.Deployments;
-import com.acme.spring.jdbc.JdbcTestHelper;
 import com.acme.spring.jdbc.domain.Stock;
 import com.acme.spring.jdbc.repository.StockRepository;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -203,14 +202,14 @@ public class JdbcStockRepositoryTestCase {
     /**
      * <p>Asserts that the actual stock's properties values are correct.</p>
      *
-     * @param expected the expected stock object
-     * @param actual   the tested stock object
+     * @param expected   the expected stock object
+     * @param actual     the tested stock object
      */
     private static void assertStock(Stock expected, Stock actual) {
 
-        assertEquals("Stock has invalid id property.", expected.getId(), actual.getId());
         assertEquals("Stock has invalid name property.", expected.getName(), actual.getName());
         assertEquals("Stock has invalid symbol property.", expected.getSymbol(), actual.getSymbol());
-        assertEquals("Stock has invalid value property.", expected.getValue(), actual.getValue());
+        assertEquals("Stock has invalid value property.", expected.getValue().doubleValue(),
+                actual.getValue().doubleValue(), 0.01D);
     }
 }
