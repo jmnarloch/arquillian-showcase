@@ -22,7 +22,11 @@ import com.acme.spring.testng.repository.impl.DefaultStockRepository;
 import com.acme.spring.testng.service.StockService;
 import com.acme.spring.testng.service.impl.DefaultStockService;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
+
+import java.io.File;
 
 /**
  * <p>A helper class for creating the tests deployments.</p>
@@ -30,6 +34,11 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
  * @author <a href="mailto:jmnarloch@gmail.com">Jakub Narloch</a>
  */
 public final class Deployments {
+
+    /**
+     * <p>Represents the deployment dependencies.</p>
+     */
+    private static File[] deploymentsDependencies;
 
     /**
      * <p>Creates new instance of {@link Deployments} class.</p>
@@ -41,13 +50,33 @@ public final class Deployments {
     }
 
     /**
-     * <p>Creates new tests deployment</p>
+     * <p>Creates new test deployment.</p>
+     *
+     * @return new test deployment
      */
-    public static JavaArchive createDeployment() {
+    public static WebArchive createDeployment() {
 
-        return ShrinkWrap.create(JavaArchive.class, "spring-test.jar")
+        return ShrinkWrap.create(WebArchive.class, "spring-test.war")
                 .addClasses(Stock.class, StockRepository.class, StockService.class,
                         DefaultStockRepository.class, DefaultStockService.class)
-                .addAsResource("applicationContext.xml");
+                .addAsResource("applicationContext.xml")
+                .addAsLibraries(getDeploymentDependencies());
+    }
+
+    /**
+     * <p>Retrieves the deployment dependencies.</p>
+     *
+     * @return the deployment dependencies
+     */
+    private static File[] getDeploymentDependencies() {
+
+        if (deploymentsDependencies == null) {
+
+            deploymentsDependencies = DependencyResolvers.use(MavenDependencyResolver.class)
+                    .artifacts("org.springframework:spring-context:3.1.1.RELEASE")
+                    .resolveAsFiles();
+        }
+
+        return deploymentsDependencies;
     }
 }

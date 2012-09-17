@@ -27,9 +27,6 @@ import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * <p>A helper class for creating the tests deployments.</p>
@@ -37,6 +34,11 @@ import java.util.List;
  * @author <a href="mailto:jmnarloch@gmail.com">Jakub Narloch</a>
  */
 public final class Deployments {
+
+    /**
+     * <p>Represents the deployment dependencies.</p>
+     */
+    private static File[] deploymentsDependencies;
 
     /**
      * <p>Creates new instance of {@link Deployments} class.</p>
@@ -64,40 +66,27 @@ public final class Deployments {
                 .addAsResource("create.sql")
                 .addAsResource("delete.sql")
                 .addAsResource("insert.sql")
-                .addAsLibraries(springDependencies());
+                .addAsLibraries(getDeploymentDependencies());
     }
 
     /**
-     * <p>Retrieves the dependencies.</p>
+     * <p>Retrieves the deployment dependencies.</p>
      *
-     * @return the array of the dependencies
+     * @return the deployment dependencies
      */
-    public static File[] springDependencies() {
+    private static File[] getDeploymentDependencies() {
 
-        ArrayList<File> files = new ArrayList<File>();
+        if (deploymentsDependencies == null) {
 
-        files.addAll(resolveDependencies("org.springframework:spring-context:3.1.1.RELEASE"));
-        files.addAll(resolveDependencies("org.springframework:spring-orm:3.1.1.RELEASE"));
-        files.addAll(resolveDependencies("org.springframework:spring-tx:3.1.1.RELEASE"));
-        files.addAll(resolveDependencies("org.hibernate:hibernate-core:3.6.0.Final"));
-        files.addAll(resolveDependencies("org.hibernate:hibernate-annotations:3.4.0.GA"));
-        files.addAll(resolveDependencies("javassist:javassist:3.6.0.GA"));
+            deploymentsDependencies = DependencyResolvers.use(MavenDependencyResolver.class)
+                    .artifacts("org.springframework:spring-context:3.1.1.RELEASE",
+                            "org.springframework:spring-orm:3.1.1.RELEASE",
+                            "org.springframework:spring-tx:3.1.1.RELEASE",
+                            "org.hibernate:hibernate-core:3.6.0.Final",
+                            "javassist:javassist:3.6.0.GA")
+                    .resolveAsFiles();
+        }
 
-        return files.toArray(new File[files.size()]);
-    }
-
-    /**
-     * <p>Resolves the given artifact by it's name with help of maven build system.</p>
-     *
-     * @param artifactName the fully qualified artifact name
-     *
-     * @return the resolved files
-     */
-    public static List<File> resolveDependencies(String artifactName) {
-        MavenDependencyResolver mvnResolver = DependencyResolvers.use(MavenDependencyResolver.class);
-
-        mvnResolver.loadMetadataFromPom("pom.xml");
-
-        return Arrays.asList(mvnResolver.artifacts(artifactName).resolveAsFiles());
+        return deploymentsDependencies;
     }
 }

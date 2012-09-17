@@ -15,10 +15,4 @@
         </configuration>
     </container>
 
-    <!-- Spring extension settings -->
-    <extension qualifier="spring-deployer">
-        <!-- Disables the auto package allowing to add all the dependencies through the test -->
-        <property name="autoPackage">false</property>
-    </extension>
-
 </arquillian>
